@@ -28,6 +28,7 @@ async function run() {
     const categoriesCollection = client
       .db("libraryDB")
       .collection("categories");
+    const allBooksCollection = client.db("libraryDB").collection("allBooks");
 
     //get book categories using get method
     app.get("/categories", async (req, res) => {
@@ -35,6 +36,14 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    // add-book by post method
+    app.post("/add-book", async (req, res) => {
+      const newBook = req.body;
+      const result = await allBooksCollection.insertOne(newBook);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
