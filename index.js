@@ -29,6 +29,10 @@ async function run() {
       .db("libraryDB")
       .collection("categories");
     const allBooksCollection = client.db("libraryDB").collection("allBooks");
+    const readBookCollection = client.db("libraryDB").collection("readBook");
+    const borrowBookCollection = client
+      .db("libraryDB")
+      .collection("borrowBook");
 
     //get book categories using get method
     app.get("/categories", async (req, res) => {
@@ -61,6 +65,23 @@ async function run() {
       res.send(result);
     });
 
+    //get single book by name using get method
+    app.get("/read-book/:name", async (req, res) => {
+      const name = req.params.name;
+      const query = { name: name };
+      const result = await readBookCollection.findOne(query);
+      res.send(result);
+    });
+
+    //get borrowed books by user's email
+    app.get("/borrowed-books/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const cursor = borrowBookCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     // add-book by post method
     app.post("/add-book", async (req, res) => {
       const newBook = req.body;
@@ -68,7 +89,14 @@ async function run() {
       res.send(result);
     });
 
-    // Update single product by id
+    // add borrow book by using post method
+    app.post("/borrow-book", async (req, res) => {
+      const newBook = req.body;
+      const result = await borrowBookCollection.insertOne(newBook);
+      res.send(result);
+    });
+
+    // Update single Book by id using put method
     app.put("/update/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -90,6 +118,14 @@ async function run() {
         updateProduct,
         options
       );
+      res.send(result);
+    });
+
+    // delete borrow book card by using delete method
+    app.delete("/borrowed-card/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await borrowBookCollection.deleteOne(query);
       res.send(result);
     });
 
