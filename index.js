@@ -37,6 +37,22 @@ async function run() {
       res.send(result);
     });
 
+    //get all books by using get method
+    app.get("/all-books", async (req, res) => {
+      const cursor = allBooksCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    //get books category by using get method
+    app.get("/explore/:category", async (req, res) => {
+      const category = req.params.category;
+      const query = { category: category };
+      const cursor = allBooksCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     // add-book by post method
     app.post("/add-book", async (req, res) => {
       const newBook = req.body;
