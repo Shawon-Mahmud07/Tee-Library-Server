@@ -1,6 +1,6 @@
 var express = require("express");
 var cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -53,10 +53,43 @@ async function run() {
       res.send(result);
     });
 
+    //get single book by using get method
+    app.get("/explore/id/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await allBooksCollection.findOne(query);
+      res.send(result);
+    });
+
     // add-book by post method
     app.post("/add-book", async (req, res) => {
       const newBook = req.body;
       const result = await allBooksCollection.insertOne(newBook);
+      res.send(result);
+    });
+
+    // Update single product by id
+    app.put("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const newUpdateBook = req.body;
+      const options = { upsert: true };
+      const updateProduct = {
+        $set: {
+          name: newUpdateBook.name,
+          authorName: newUpdateBook.authorName,
+          category: newUpdateBook.category,
+          ratings: newUpdateBook.ratings,
+          photo: newUpdateBook.photo,
+          details: newUpdateBook.details,
+          quantity: newUpdateBook.quantity,
+        },
+      };
+      const result = await allBooksCollection.updateOne(
+        filter,
+        updateProduct,
+        options
+      );
       res.send(result);
     });
 
